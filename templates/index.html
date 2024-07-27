@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ML Model Quality Evaluation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 400px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            margin-bottom: 5px;
+            color: #555;
+        }
+        input, select, button {
+            margin-bottom: 15px;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .result {
+            display: none;
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+        }
+    </style>
+    <script>
+        function showResult(result) {
+            const resultContainer = document.getElementById('result');
+            resultContainer.style.display = 'block';
+            resultContainer.textContent = JSON.stringify(result, null, 2);
+        }
+
+        async function handleFormSubmit(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            
+            const response = await fetch('/evaluate', {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+            showResult(result);
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>ML Model Quality Evaluation</h1>
+        <form onsubmit="handleFormSubmit(event)">
+            <label for="model">Select model file:</label>
+            <input type="file" id="model" name="model" required>
+            
+            <label for="data">Select training data file:</label>
+            <input type="file" id="data" name="data" required>
+            
+            <label for="framework">Framework used:</label>
+            <select id="framework" name="framework">
+                <option value="scikit-learn">scikit-learn</option>
+                <option value="tensorflow">TensorFlow</option>
+                <option value="pytorch">PyTorch</option>
+            </select>
+            
+            <label for="model_type">Model Type:</label>
+            <select id="model_type" name="model_type">
+                <option value="classification">Classification</option>
+                <option value="regression">Regression</option>
+            </select>
+            
+            <label for="evaluation_type">Evaluation Type:</label>
+            <select id="evaluation_type" name="evaluation_type">
+                <option value="robustness">Robustness</option>
+                <option value="correctness">Correctness</option>
+                <option value="fairness">Fairness</option>
+            </select>
+            
+            <button type="submit">Evaluate</button>
+        </form>
+        <div id="result" class="result"></div>
+    </div>
+</body>
+</html>
