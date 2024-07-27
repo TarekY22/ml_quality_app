@@ -85,6 +85,7 @@ def evaluate_model():
 
     elif evaluation_type == 'fairness':
         dataset = BinaryLabelDataset(df=data)
+        #to do
         metric = BinaryLabelDatasetMetric(dataset, privileged_groups=[{'sex': 1}], unprivileged_groups=[{'sex': 0}])
         disparate_impact = metric.disparate_impact()
 
