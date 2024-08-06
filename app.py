@@ -4,11 +4,15 @@ import numpy as np
 import joblib
 import tensorflow as tf
 import torch
+import webbrowser
+from threading import Timer
+from scipy import *
 
 # Import libraries for robustness, correctness, and fairness
+
 from art.attacks.evasion import FastGradientMethod
 from art.estimators.classification import SklearnClassifier
-from cleverhans.attacks import fast_gradient_method
+from cleverhans.tf2.attacks.fast_gradient_method import fast_gradient_method
 from secml.adv.attacks import CAttackEvasionPGDLS
 from foolbox import PyTorchModel, accuracy, samples
 from armory.utils.config_loading import load_model
@@ -18,6 +22,7 @@ import deepcheck
 import cerberus
 import tensorflow_model_analysis as tfma
 import great_expectations as ge
+from aif360.datasets import BinaryLabelDataset
 from aif360.metrics import BinaryLabelDatasetMetric
 from fairlearn.metrics import demographic_parity_difference
 from themis_ml import fairness
@@ -63,6 +68,7 @@ def evaluate_model():
             classifier = tf.keras.models.Model(model)
         elif framework == 'pytorch':
             classifier = PyTorchModel(model=model)
+        
         attack = FastGradientMethod(estimator=classifier)
         x_test_adv = attack.generate(x=x_train)
         accuracy = np.sum(np.argmax(classifier.predict(x_test_adv), axis=1) == y_train) / len(y_train)
@@ -73,7 +79,7 @@ def evaluate_model():
                 "adversarial_accuracy": accuracy
             }
         }
-
+            
     elif evaluation_type == 'correctness':
         eval_result = tfma.EvalResult()
         metrics = tfma.view.render_slicing_metrics(eval_result)
@@ -98,5 +104,11 @@ def evaluate_model():
 
     return jsonify(result)
 
+
+def open_browser():
+    webbrowser.open_new("http://127.0.0.1:5000/")
+    
 if __name__ == '__main__':
+
+    Timer(1, open_browser).start()
     app.run(debug=True)
